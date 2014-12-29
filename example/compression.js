@@ -6,6 +6,7 @@ var Offset = kafka.Offset;
 var Client = kafka.Client;
 var argv = require('optimist').argv;
 var topic = argv.topic;
+var fs = require('fs');
 if (!topic)
   throw new Error('provide --topic mytopic');
 
@@ -21,8 +22,16 @@ var options = {
 var consumer = new HighLevelConsumer(client, topics, options);
 var offset = new Offset(client);
 
+var i = 0;
 consumer.on('message', function (message) {
-  console.log(message);
+  i++;
+  console.log(i);
+
+
+  fs.appendFileSync('kafka.txt', JSON.stringify(message) + "\n");
+
+  if (i == 50000)
+    process.exit();
 });
 consumer.on('error', function (err) {
   console.log('error', err);
